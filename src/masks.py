@@ -1,11 +1,14 @@
-import os
-
-inp = "8846888895461112"
-acc = "88468888954611125896"
+inp = "Visa Classic 6831982476737658"
+acc = "Счет 64686473678894779589"
+date = "2018-07-11T02:26:18.671407"
 
 
 def card_mask(card_number: str) -> str:
-    """принимает на вход номер карты и возвращает ее маску"""
+    """Функция маскировки номера карты
+    :param str card_number: Номер карты
+    :return: Маскированный номер
+    """
+    card_number = card_number.split()[-1]
     if len(card_number) != 16 or not card_number.isdigit():
         return "номер карты должен состоять из шестнадцати цифр"
     else:
@@ -17,20 +20,23 @@ def card_mask(card_number: str) -> str:
 
 
 def account_mask(card_account: str) -> str:
-    """принимает на вход номер счёта и возвращает его маску."""
+    """Функция маскировки счета
+    :param str card_account: Номер счета
+    :return: Маскированный счет
+    """
+    card_account = card_account.split()[-1]
     return "**" + card_account[-4:]
 
 
-def path_to_directory(path: str = os.getcwd()) -> dict:
-    """возвращает путь директории в виде словаря {"files": , "folders": }"""
-    len_dirs = 0
-    len_files = 0
-    for root, dirs, files in os.walk(path):
-        len_dirs += len(dirs)
-        len_files += len(files)
-    return {"files": len_files, "folders": len_dirs}
+def registration_date(datetime: str) -> str:
+    """
+    :param: входящие параметры даты вида "2018-07-11T02:26:18.671407"
+    :return: "дата в формате дд.мм.гг
+    """
+    datetime = datetime.split('T')[0].split('-')
+    return '.'.join(datetime[::-1])
 
 
-print(path_to_directory())
 print(card_mask(inp))
 print(account_mask(acc))
+print(registration_date(date))
