@@ -1,7 +1,3 @@
-inp = "Visa Classic 6831982476737658"
-acc = "Счет 64686473678894779589"
-
-
 def card_mask(card_number: str) -> str:
     """Функция маскировки номера карты
     :param str card_number: Номер карты
@@ -23,7 +19,3 @@ def account_mask(card_account: str) -> str:
     :return: Маскированный счет
     """
     return "**" + card_account[-4:]
-
-
-print(card_mask(inp))
-print(account_mask(acc))
