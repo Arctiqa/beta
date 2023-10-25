@@ -33,8 +33,8 @@ def registration_date(datetime: str) -> str:
     :param: входящие параметры даты вида "2018-07-11T02:26:18.671407"
     :return: "дата в формате дд.мм.гг
     """
-    datetime = datetime.split('T')[0].split('-')
-    return '.'.join(datetime[::-1])
+    datet = datetime.split('T')[0].split('-')
+    return '.'.join(datet[::-1])
 
 
 print(card_mask(inp))
