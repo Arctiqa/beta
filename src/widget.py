@@ -4,7 +4,7 @@ date = "2018-07-11T02:26:18.671407"
 data_input = """
 Maestro 1596837868705199
 Счет 64686473678894779589
-MasterCard 7158300734726758 
+MasterCard 7158300734726758
 Счет 35383033474447895560
 Visa Classic 6831982476737658
 Visa Platinum 8990922113665229
@@ -54,5 +54,5 @@ def test(cards_data: str) -> str:
     return output
 
 
-print(test(data_input))
-print(registration_date(date))
+# print(test(data_input))
+# print(registration_date(date))
