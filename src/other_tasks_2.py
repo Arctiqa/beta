@@ -20,7 +20,7 @@ def sorted_by_product_price(product_list: list[dict], product_category: Optional
         return sorted(new_list, key=lambda category: category['price'], reverse=True)
 
 
-def sorted_by_avg_order_list(order_list: list[dict]) -> list[dict]:
+def sorted_by_avg_order_list(order_list: list[dict]) -> dict[dict]:
     """
     функция возвращает список словарей,
     содержащий информацию о средней стоимости заказа и количестве заказов за каждый месяц
@@ -29,42 +29,28 @@ def sorted_by_avg_order_list(order_list: list[dict]) -> list[dict]:
                                         {}
     :return: список словарей усредненных цен за товары по месяцам
     """
-    sorted_list = get_dicts_sorted_by_date(order_list, False)
-    sorted_new_list: list[dict] = []
+    monthly_statistics = {}
 
-    for order_month in sorted_list:
-        dated = order_month['date'].split('-')[:2]
-        price_sum = 0
-        quantity_sum = 0
-        for item in order_month['items']:
-            price_sum += item['price']
-            quantity_sum += item['quantity']
-        # print(price_sum, quantity_sum)
-        changed_items = {'all_price_sum': price_sum, 'all_quantity_sum': quantity_sum}
-        list_ = {'date': '-'.join(dated), 'order': changed_items}
-        sorted_new_list.append(list_)
-    # print(sorted_new_list)
+    for order in order_list:
+        order_date = order['date']
+        year_month = order_date[:7]
 
-    last_date_value = sorted_new_list[0]['date']
-    all_price_sum = 0
-    all_quantity_sum = 0
-    avg_price_list = []
+        total_order_cost = 0
+        for item in order['items']:
+            total_order_cost += item['price'] * item['quantity']
 
-    for order in sorted_new_list:
-        if order['date'] == last_date_value:
-            all_price_sum += order['order']['all_price_sum']
-            all_quantity_sum += order['order']['all_quantity_sum']
-            last_date_value = order['date']
+        if year_month in monthly_statistics:
+            monthly_statistics[year_month]['total_cost'] += total_order_cost
+            monthly_statistics[year_month]['order_count'] += 1
         else:
-            avg_price_value = all_price_sum / all_quantity_sum
-            avg_dict = {'average_order_value': avg_price_value, 'order_count': all_quantity_sum}
-            avg_price_list.append(avg_dict)
-            all_price_sum = 0
-            all_quantity_sum = 0
-            all_price_sum += order['order']['all_price_sum']
-            all_quantity_sum += order['order']['all_quantity_sum']
-            last_date_value = order['date']
-    avg_price_value = all_price_sum / all_quantity_sum
-    avg_dict = {'average_order_value': avg_price_value, 'order_count': all_quantity_sum}
-    avg_price_list.append(avg_dict)
-    return avg_price_list
+            monthly_statistics[year_month] = {'total_cost': total_order_cost, 'order_count': 1}
+
+    result = {}
+    for year_month, stats in monthly_statistics.items():
+        average_order_value = stats['total_cost'] / stats['order_count']
+        result[year_month] = {
+            'average_order_value': average_order_value,
+            'order_count': stats['order_count']
+        }
+
+    return result

@@ -2,6 +2,33 @@ from src.processing import get_dicts_sorted_by_date, get_dicts_not_executed
 from src.other_tasks_2 import sorted_by_avg_order_list, sorted_by_product_price
 
 
+orders = [
+    {
+        'id': 1,
+        'date': '2023-01-15',
+        'items': [
+            {'name': 'Product A', 'price': 10, 'quantity': 2},
+            {'name': 'Product B', 'price': 20, 'quantity': 1}
+        ]
+    },
+    {
+        'id': 2,
+        'date': '2023-01-20',
+        'items': [
+            {'name': 'Product A', 'price': 10, 'quantity': 1},
+            {'name': 'Product C', 'price': 15, 'quantity': 3}
+        ]
+    },
+    {
+        'id': 3,
+        'date': '2023-02-10',
+        'items': [
+            {'name': 'Product B', 'price': 20, 'quantity': 1}
+        ]
+    },
+]
+
+
 main_task_input = [{'id': 41428829, 'state': 'EXECUTED', 'date': '2019-07-03T18:35:29.512364'},
                    {'id': 939719570, 'state': 'EXECUTED', 'date': '2018-06-30T02:08:58.425572'},
                    {'id': 594226727, 'state': 'CANCELED', 'date': '2018-09-12T21:27:25.241689'},
@@ -73,3 +100,4 @@ print('---------------')
 print(sorted_by_product_price(dop_task_1))
 print(sorted_by_product_price(dop_task_1, 'potato1'))
 print(sorted_by_avg_order_list(dop_task_2))
+print(sorted_by_avg_order_list(orders))
