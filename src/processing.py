@@ -21,5 +21,3 @@ def get_dicts_sorted_by_date(dict_list: list[dict], sort_type: bool = True) -> l
     """
     new_list = sorted(dict_list, key=lambda dict_: dict_['date'], reverse=sort_type)
     return new_list
-
-
