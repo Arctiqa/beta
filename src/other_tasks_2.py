@@ -1,7 +1,9 @@
-from processing import get_dicts_sorted_by_date
+from typing import Optional
+
+from src.processing import get_dicts_sorted_by_date
 
 
-def sorted_by_product_dicts(product_list: list[dict], product_category: str = None) -> list[dict]:
+def sorted_by_product_price(product_list: list[dict], product_category: Optional[str] = None) -> list[dict]:
     """
     возвращает список словарей, отсортированных по убыванию для продуктов из заданной категории
     :param: список словарей с товарами
@@ -25,7 +27,7 @@ def sorted_by_avg_order_list(order_list: list[dict]) -> list[dict]:
     :param order_list: {'id': ,'date': ,items': [
                                         {'name': 'товар', 'price': цена, 'quantity': количество},
                                         {}
-    :return:
+    :return: список словарей усредненных цен за товары по месяцам
     """
     sorted_list = get_dicts_sorted_by_date(order_list, False)
     sorted_new_list: list[dict] = []
@@ -41,7 +43,7 @@ def sorted_by_avg_order_list(order_list: list[dict]) -> list[dict]:
         changed_items = {'all_price_sum': price_sum, 'all_quantity_sum': quantity_sum}
         list_ = {'date': '-'.join(dated), 'order': changed_items}
         sorted_new_list.append(list_)
-    print(sorted_new_list)
+    # print(sorted_new_list)
 
     last_date_value = sorted_new_list[0]['date']
     all_price_sum = 0
@@ -66,6 +68,3 @@ def sorted_by_avg_order_list(order_list: list[dict]) -> list[dict]:
     avg_dict = {'average_order_value': avg_price_value, 'order_count': all_quantity_sum}
     avg_price_list.append(avg_dict)
     return avg_price_list
-
-
-
