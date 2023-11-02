@@ -18,4 +18,7 @@ def account_mask(card_account: str) -> str:
     :param str card_account: Номер счета
     :return: Маскированный счет
     """
-    return "**" + card_account[-4:]
+    if len(card_account) != 20 or not card_account.isdigit():
+        return 'номер счета должен состоять из двадцати цифр'
+    else:
+        return "**" + card_account[-4:]

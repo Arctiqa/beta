@@ -1,17 +1,5 @@
 from src import masks
 
-date = "2018-07-11T02:26:18.671407"
-data_input = """
-Maestro 1596837868705199
-Счет 64686473678894779589
-MasterCard 7158300734726758
-Счет 35383033474447895560
-Visa Classic 6831982476737658
-Visa Platinum 8990922113665229
-Visa Gold 5999414228426353
-Счет 73654108430135874305
-"""
-
 
 def card_information_output(info: str) -> str:
     """
@@ -26,12 +14,19 @@ def card_information_output(info: str) -> str:
         card_account = info
         card_account = card_account.split()[-1]
         account_masked = masks.account_mask(card_account)  # src/masks
-        return f'Счет {account_masked}'
+        if len(account_masked) != 6:
+            return account_masked
+        else:
+            return f'Счет {account_masked}'
+
     else:
         card_number = info_list[-1]
         card_masked = masks.card_mask(card_number)  # src/masks
         info_list[-1] = card_masked
-        return " ".join(info_list)
+        if card_masked.replace(' ', '').isalpha():
+            return card_masked
+        else:
+            return " ".join(info_list)
 
 
 def registration_date(datetime: str) -> str:
@@ -43,16 +38,3 @@ def registration_date(datetime: str) -> str:
     """
     datet = datetime.split('T')[0].split('-')
     return '.'.join(datet[::-1])
-
-
-def test(cards_data: str) -> str:
-    """тестовая функция"""
-    data = cards_data.split('\n')
-    output = ''
-    for i in data[1:-1]:
-        output += card_information_output(i) + '\n'
-    return output
-
-
-# print(test(data_input))
-# print(registration_date(date))
