@@ -1,1 +1,6 @@
-from src.processing import get_dicts_sorted_by_date, get_dicts_not_executed
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()
