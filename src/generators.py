@@ -1,4 +1,4 @@
-from typing import Generator, Any
+from typing import Generator
 
 
 def filter_by_currency(transact: list[dict], currency: str) -> Generator:
@@ -31,7 +31,6 @@ def card_number_generator(start: int, finish: int) -> Generator:
     """
     if start < 0 or finish < 0 or finish > 9999_9999_9999_9999:
         raise ValueError('Неверное значение вводных данных')
-    else:
-        cards = (split_card(num) for num in range(start, finish + 1))
-        return cards
 
+    cards = (split_card(num) for num in range(start, finish + 1))
+    return cards
