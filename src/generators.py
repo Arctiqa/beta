@@ -23,7 +23,7 @@ def transaction_descriptions(transact: list[dict]) -> Generator:
         yield dct['description']
 
 
-def split_card(num):
+def split_card(num: int) -> str:
     """
     Дополнительная функция к card_number_generator(). Присваивает номер карте, разделяет его по четыре цифры
     :param num: номер карты
