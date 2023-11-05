@@ -2,12 +2,23 @@ from typing import Generator
 
 
 def filter_by_currency(transact: list[dict], currency: str) -> Generator:
+    """
+    Функция выдает значения из генератора списка словарей по выбранной валюте
+    :param transact: список словарей с данными о транзакциях
+    :param currency: валюта платежа
+    :return: значение из генератора списка словарей по выбранной валюте
+    """
     for dct in transact:
         if dct["operationAmount"]["currency"]["code"] == currency:
             yield dct
 
 
 def transaction_descriptions(transact: list[dict]) -> Generator:
+    """
+    Функция по очереди выводит описание произведенной операции
+    :param transact: список словарей с данными о транзакциях
+    :return: назначение проведенной операции транзакиции
+    """
     for dct in transact:
         yield dct['description']
 
