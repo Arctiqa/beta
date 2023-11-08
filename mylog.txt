@@ -1,0 +1,6 @@
+2023-11-09 03:10:51.570521 my_function, ok
+2023-11-09 03:10:51.575025 my_function, ok
+2023-11-09 03:10:51.580556 my_function, ok
+2023-11-09 03:10:51.580556 my_function, error: Ошибка типа данных. Inputs: (1, 't'), my_function
+2023-11-09 03:10:51.580556 my_function, error: Ошибка типа данных. Inputs: ('r', 't'), my_function
+2023-11-09 03:10:51.590661 my_function, error: Ошибка типа данных. Inputs: ('r', 4), my_function
