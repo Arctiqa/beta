@@ -26,7 +26,6 @@ def usd_to_rub_rate(currency: str) -> Optional[float]:
     """
     url = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base={currency}"
     response = requests.request("GET", url, headers={"apikey": API_KEY}).json()
-    print(response)
     if response is None:
         return None
     else:
@@ -69,7 +68,3 @@ def transaction_amount_rub(transaction: dict[str, dict], currency_rate: float) -
     except KeyError as e:
         print(f"Key {str(e)} not found in transaction.")
         return None
-
-
-f = transactions_json_to_dict('empty_json.json')
-print(f)
