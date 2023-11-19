@@ -113,8 +113,6 @@ def test_transaction_amount_rub(caplog):
         (transaction_amount_rub(usd_transaction, 100.0), 1)
         transaction_amount_rub(incorrect_transaction, 92.4)
 
-        assert f'transaction has been completed, currency - RUB, id - 441945886' \
-               in caplog.text
-        assert f'transaction has been completed, currency - USD, id - 41428829' \
-               in caplog.text
+        assert 'transaction has been completed, currency - RUB, id - 441945886' in caplog.text
+        assert 'transaction has been completed, currency - USD, id - 41428829' in caplog.text
         assert "key 'operationAmount' not found in transaction." in caplog.text
