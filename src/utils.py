@@ -10,18 +10,19 @@ API_KEY = os.environ.get('API_KEY')
 logger = logging.getLogger(__name__)
 
 
-def currency_to_rub_rate(currency: str) -> Optional[float]:
+def currency_from_api_rub_rate(currency: str, api_key: Optional[str] = API_KEY) -> Optional[float]:
     """
     Запрашивает курс валюты от API и возвращает значение курса RUB к USD
     :param currency: запрашиваемая валюта
+    :param api_key: API_KEY
     :return: курс рубля по отношению к запрашиваемой валюте
     """
-    if API_KEY is None:
-        logger.error('API is not defined')
-        raise Exception('API не определен')
     url = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base={currency}"
     try:
-        response = requests.request("GET", url, headers={"apikey": API_KEY}).json()
+        if api_key is None:
+            raise ValueError('API не определен')
+        response = requests.request("GET", url, headers={"apikey": api_key}).json()
+        logger.info('currency value has been received from API')
         return float(response['rates']['RUB'])
     except Exception as e:
         logger.error(f'Error during API request: {e}')

@@ -2,12 +2,14 @@ import os
 import json
 from unittest.mock import patch
 import pytest
-from src.utils import transaction_amount_rub, transactions_json_to_dict, usd_to_rub_rate
+from src.utils import transaction_amount_rub, transactions_json_to_dict, currency_from_api_rub_rate
 from dotenv import load_dotenv
+from src.logger_ import setup_logging
+import logging
 
 load_dotenv()
 API_KEY = os.environ.get('API_KEY')
-print(os.getcwd())
+logger = setup_logging()
 
 
 @pytest.fixture
@@ -17,49 +19,58 @@ def test_dict():
         return json.load(f)
 
 
-def test_transactions_json_to_dict(test_dict):
+def test_transactions_json_to_dict(test_dict, caplog):
     json_file = 'operations.json'
     result = transactions_json_to_dict(json_file)
     assert result == test_dict
+    with caplog.at_level(logging.INFO):
+        transactions_json_to_dict(json_file)
+    assert f'json file {os.path.join(os.getcwd(), "data", json_file)} converted to python format' in caplog.text
 
 
-def test_transactions_json_to_dict_not_found(capsys):
+def test_transactions_json_to_dict_not_found(caplog):
     json_file = 'not_exist.json'
     result = transactions_json_to_dict(json_file)
-    log_message = capsys.readouterr()
 
-    assert result is None
-    assert f'File {json_file} not found.' == log_message.out.strip()
+    assert result == []
+    assert f"File {json_file} not found." in caplog.text
 
 
-def test_transactions_json_to_dict_invalid_json(capsys):
+def test_transactions_json_to_dict_invalid_json(caplog):
     json_file = 'invalid_json.json'
     result = transactions_json_to_dict(json_file)
-    log_message = capsys.readouterr()
 
-    assert result is None
-    assert "Invalid JSON data." == log_message.out.strip()
+    assert result == []
+    assert "Invalid JSON data." in caplog.text
 
 
-def test_usd_to_rub_rate():
+def test_currency_from_api_rub_rate(caplog):
     with patch('requests.request') as mock_get:
         mock_get.return_value.json.return_value = {'base': 'USD', 'rates': {'RUB': 90.0}}
-        assert usd_to_rub_rate('USD') == 90.0
+        assert currency_from_api_rub_rate('USD', API_KEY) == 90.0
         mock_get.assert_called_once_with("GET",
                                          "https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base=USD",
                                          headers={"apikey": API_KEY})
+        with caplog.at_level(logging.INFO):
+            currency_from_api_rub_rate('USD')
+            assert 'currency value has been received from API' in caplog.text
 
     with patch('requests.request') as mock_get_none:
         mock_get_none.return_value.json.return_value = None
-        assert usd_to_rub_rate('USD') is None
+        assert currency_from_api_rub_rate('USD') is None
         mock_get_none.assert_called_once_with(
             "GET",
             "https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base=USD",
-            headers={"apikey": API_KEY}
-        )
+            headers={"apikey": API_KEY})
+        with caplog.at_level(logging.INFO):
+            currency_from_api_rub_rate('USD', API_KEY)
+            assert "Error during API request: 'NoneType' object is not subscriptable" in caplog.text
+
+    currency_from_api_rub_rate('USD', api_key=None)
+    assert 'Error during API request: API не определен' in caplog.text
 
 
-def test_transaction_amount_rub():
+def test_transaction_amount_rub(caplog):
     rub_transaction = {
         "id": 441945886,
         "state": "EXECUTED",
@@ -96,3 +107,16 @@ def test_transaction_amount_rub():
     assert transaction_amount_rub(rub_transaction, 91.3) == 31957.58
     assert round(transaction_amount_rub(usd_transaction, 100.0), 1) == 822137.0
     assert transaction_amount_rub(incorrect_transaction, 92.4) is None
+
+    with caplog.at_level(logging.INFO):
+        transaction_amount_rub(rub_transaction, 91.3)
+        (transaction_amount_rub(usd_transaction, 100.0), 1)
+        transaction_amount_rub(incorrect_transaction, 92.4)
+
+        assert f'transaction has been completed, currency - ' \
+               f'{(rub_transaction["operationAmount"]["currency"]["code"])}, id - {rub_transaction["id"]}' \
+               in caplog.text
+        assert f'transaction has been completed, currency - ' \
+               f'{(rub_transaction["operationAmount"]["currency"]["code"])}, id - {rub_transaction["id"]}' \
+               in caplog.text
+        assert "key 'operationAmount' not found in transaction." in caplog.text
