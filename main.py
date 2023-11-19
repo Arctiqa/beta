@@ -1,5 +1,5 @@
 from src.logger_ import setup_logging
-from src.utils import transaction_amount_rub, currency_to_rub_rate, transactions_json_to_dict
+from src.utils import transaction_amount_rub, currency_from_api_rub_rate, transactions_json_to_dict
 from dotenv import load_dotenv
 import os
 from src.masks import card_mask, account_mask
@@ -12,7 +12,7 @@ logger = setup_logging()
 def main():
     logger.info("Application starts....")
     transactions_json_to_dict('operations.json')
-    rub_usd_rate = currency_to_rub_rate('USD')
+    rub_usd_rate = currency_from_api_rub_rate('USD')
     transaction_amount_rub({
         "id": 41428829,
         "state": "EXECUTED",
