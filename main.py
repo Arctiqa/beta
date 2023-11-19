@@ -3,6 +3,8 @@ from src.utils import transaction_amount_rub, currency_from_api_rub_rate, transa
 from dotenv import load_dotenv
 import os
 from src.masks import card_mask, account_mask
+from unittest.mock import patch
+
 
 load_dotenv()
 API_KEY = os.environ.get('API_KEY')
@@ -65,8 +67,13 @@ def main():
     card_mask('7158300734726758')
     account_mask('3538303374447895560')
     card_mask('715830073476758')
-    logger.info("Application finished....")
 
+    currency_from_api_rub_rate('USD', api_key=None)
+    with patch('requests.request') as mock_get_none:
+        mock_get_none.return_value.json.return_value = None
+        currency_from_api_rub_rate("USD", api_key=API_KEY)
+
+    logger.info("Application finished....")
 
 if __name__ == '__main__':
     main()

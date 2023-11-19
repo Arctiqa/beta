@@ -22,7 +22,7 @@ def currency_from_api_rub_rate(currency: str, api_key: Optional[str] = API_KEY) 
         if api_key is None:
             raise ValueError('API не определен')
         response = requests.request("GET", url, headers={"apikey": api_key}).json()
-        logger.info('currency value has been received from API')
+        logger.info('response value has been received from API')
         return float(response['rates']['RUB'])
     except Exception as e:
         logger.error(f'Error during API request: {e}')
