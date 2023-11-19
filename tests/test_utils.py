@@ -53,7 +53,7 @@ def test_currency_from_api_rub_rate(caplog):
                                          headers={"apikey": API_KEY})
         with caplog.at_level(logging.INFO):
             currency_from_api_rub_rate('USD')
-            assert 'currency value has been received from API' in caplog.text
+            assert 'response value has been received from API' in caplog.text
 
     with patch('requests.request') as mock_get_none:
         mock_get_none.return_value.json.return_value = None
@@ -113,10 +113,8 @@ def test_transaction_amount_rub(caplog):
         (transaction_amount_rub(usd_transaction, 100.0), 1)
         transaction_amount_rub(incorrect_transaction, 92.4)
 
-        assert f'transaction has been completed, currency - ' \
-               f'{(rub_transaction["operationAmount"]["currency"]["code"])}, id - {rub_transaction["id"]}' \
+        assert f'transaction has been completed, currency - RUB, id - 441945886' \
                in caplog.text
-        assert f'transaction has been completed, currency - ' \
-               f'{(rub_transaction["operationAmount"]["currency"]["code"])}, id - {rub_transaction["id"]}' \
+        assert f'transaction has been completed, currency - USD, id - 41428829' \
                in caplog.text
         assert "key 'operationAmount' not found in transaction." in caplog.text
