@@ -5,7 +5,6 @@ import os
 from src.masks import card_mask, account_mask
 from unittest.mock import patch
 
-
 load_dotenv()
 API_KEY = os.environ.get('API_KEY')
 logger = setup_logging()
@@ -74,6 +73,7 @@ def main():
         currency_from_api_rub_rate("USD", api_key=API_KEY)
 
     logger.info("Application finished....")
+
 
 if __name__ == '__main__':
     main()

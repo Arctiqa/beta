@@ -1,0 +1,10 @@
+2023-11-14 02:36:28.730497 my_function, ok
+2023-11-14 02:36:28.731317 my_function, error:unsupported operand type(s) for +: 'int' and 'str'. Inputs: (1, 't'), my_function
+2023-11-14 02:36:28.733342 my_function, ok
+2023-11-14 02:36:28.745448 my_function, ok
+2023-11-14 02:36:28.747478 my_function, ok
+2023-11-14 02:36:28.751528 my_function, error:unsupported operand type(s) for +: 'int' and 'str'. Inputs: (1, 't'), my_function
+2023-11-14 02:36:28.754555 my_function, error:can only concatenate str (not "int") to str. Inputs: ('r', 4), my_function
+2023-11-14 02:36:28.757512 my_function, ok
+2023-11-14 02:36:28.760017 my_function, error:unsupported operand type(s) for +: 'int' and 'str'. Inputs: (1, 't'), my_function
+2023-11-14 02:36:28.762141 my_function, error:can only concatenate str (not "int") to str. Inputs: ('r', 4), my_function
