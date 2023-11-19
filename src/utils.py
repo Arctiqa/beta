@@ -43,11 +43,9 @@ def transactions_json_to_dict(json_file: str) -> Any:
 
     except json.JSONDecodeError:
         logger.warning("Invalid JSON data.")
-        print("Invalid JSON data.")
         return []
     except FileNotFoundError:
         logger.warning(f"File {json_file} not found.")
-        print(f"File {json_file} not found.")
         return []
 
 
@@ -69,7 +67,6 @@ def transaction_amount_rub(transaction: dict[str, dict], currency_rate: float) -
                         f'{(transaction["operationAmount"]["currency"]["code"])}, id - {transaction["id"]}')
             return float(result_rub)
     except KeyError as e:
-        print(f"Key {str(e)} not found in transaction.")
         logger.error(f"key {str(e)} not found in transaction.")
 
         return None
