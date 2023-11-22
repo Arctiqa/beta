@@ -30,7 +30,6 @@ def currency_value_cache(func: Callable) -> Any:
                 result = func(currency, api_key)
                 if not None:
                     cache[currency] = result
-                    logger.info('response value has been received from API')
                 else:
                     raise ValueError('API не определен')
             return result

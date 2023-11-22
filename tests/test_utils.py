@@ -97,19 +97,20 @@ def test_transaction_amount_rub(caplog):
 
     with patch('src.utils.currency_from_api_rub_rate') as mock_currency:
         mock_currency.return_value = 100.0
+        with caplog.at_level(logging.INFO):
+            transaction_amount_rub(usd_transaction, 'USD')
+            assert 'transaction has been completed, currency - USD, id - 41428829' in caplog.text
         result = transaction_amount_rub(usd_transaction, "USD")
     assert result == 'Transaction id - 41428829, USD to RUB - 822137.0000000001'
 
-    assert transaction_amount_rub(rub_transaction, 'USD') == 'Transaction id - 441945886, RUB - 31957.58'
     assert transaction_amount_rub(incorrect_transaction, 'USD') is None
+    assert transaction_amount_rub(rub_transaction, 'USD') == 'Transaction id - 441945886, RUB - 31957.58'
 
     with caplog.at_level(logging.INFO):
         transaction_amount_rub(rub_transaction, 'USD')
-        transaction_amount_rub(usd_transaction, 'USD')
         transaction_amount_rub(incorrect_transaction, 'USD')
 
         assert 'transaction has been completed, currency - RUB, id - 441945886' in caplog.text
-        assert 'transaction has been completed, currency - USD, id - 41428829' in caplog.text
         assert "key 'operationAmount' not found in transaction." in caplog.text
 
 
