@@ -17,13 +17,13 @@ def main():
     c = transactions_csv_to_dict('transactions.csv')
     for i in j:
         print(transaction_amount_rub(i, 'USD'))
-    print('-----------------')
+    print('------------')
     for i in x:
         print(transaction_amount_rub(i, 'EUR'))
-    print('-------------')
+    print('------------')
     for i in c:
         print(transaction_amount_rub(i, 'CNY'))
-    print('-------------')
+    print('------------')
 
     currency_from_api_rub_rate('USD', api_key=None)
     with patch('requests.request') as mock_get_none:
