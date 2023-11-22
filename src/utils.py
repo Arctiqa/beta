@@ -1,4 +1,3 @@
-import csv
 import json
 import os
 import requests
@@ -12,37 +11,37 @@ API_KEY = os.environ.get('API_KEY')
 logger = logging.getLogger(__name__)
 
 
-# def currency_value_cache(func: Callable) -> Any:
-#     """
-#     Декоратор для сохранения значения валюты по отношению к рублю в кэш
-#     :param func: src.utils.currency_from_api_rub_rate
-#     :return: значение валюты по отношению к рублю
-#     """
-#     cache: dict = {}
-#
-#     def wrapper(currency: str, api_key: str) -> Any:
-#         try:
-#             if api_key is None:
-#                 raise ValueError('API не определен')
-#             if currency in cache:
-#                 logger.info('response value has been received from API cache')
-#                 return cache[currency]
-#             else:
-#                 result = func(currency, api_key)
-#                 if not None:
-#                     cache[currency] = result
-#                     logger.info('response value has been received from API')
-#                 else:
-#                     raise ValueError('API не определен')
-#             return result
-#         except Exception as e:
-#             logger.error(f'Error during API request: {e}')
-#             return None
-#
-#     return wrapper
+def currency_value_cache(func: Callable) -> Any:
+    """
+    Декоратор сохраняет значение валюты по отношению к рублю в кэш
+    :param func: src.utils.currency_from_api_rub_rate
+    :return: значение валюты по отношению к рублю
+    """
+    cache: dict = {}
+
+    def wrapper(currency: str, api_key: str) -> Any:
+        try:
+            if api_key is None:
+                raise ValueError('API не определен')
+            if currency in cache:
+                logger.info('response value has been received from API cache')
+                return cache[currency]
+            else:
+                result = func(currency, api_key)
+                if not None:
+                    cache[currency] = result
+                    logger.info('response value has been received from API')
+                else:
+                    raise ValueError('API не определен')
+            return result
+        except Exception as e:
+            logger.error(f'Error during API request: {e}')
+            return None
+
+    return wrapper
 
 
-# @currency_value_cache
+@currency_value_cache
 def currency_from_api_rub_rate(currency: str, api_key: Optional[str] = API_KEY) -> Optional[float]:
     """
     Запрашивает курс валюты от API и возвращает значение курса RUB к USD
@@ -173,5 +172,3 @@ def transaction_amount_rub(transaction: dict[str, dict], currency: str) -> Optio
         logger.error(f"key {str(e)} not found in transaction.")
 
         return None
-
-

@@ -7,7 +7,6 @@ from src.utils import (transaction_amount_rub, transactions_json_to_dict, curren
 from dotenv import load_dotenv
 from src.logger_ import setup_logging
 import logging
-import pandas as pd
 
 load_dotenv()
 API_KEY = os.environ.get('API_KEY')
