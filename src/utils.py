@@ -1,9 +1,11 @@
+import csv
 import json
 import os
 import requests
 import logging
 from typing import Optional, Any
 from dotenv import load_dotenv
+import pandas as pd
 
 load_dotenv()
 API_KEY = os.environ.get('API_KEY')
@@ -31,7 +33,7 @@ def currency_from_api_rub_rate(currency: str, api_key: Optional[str] = API_KEY) 
 
 def transactions_json_to_dict(json_file: str) -> Any:
     """
-    Функция принимает json файл с транзакциями, возвращает отредактированный json файл в формате python
+    Функция принимает json файл с транзакциями, возвращает отредактированный файл в виде списка словарей
     :param json_file: файл с транзакциями в формате json
     :return: отредактированный файл json
     """
@@ -50,6 +52,65 @@ def transactions_json_to_dict(json_file: str) -> Any:
         return []
 
 
+def transactions_csv_to_dict(data_file: str) -> Any:
+    """
+    Функция принимает csv файл с транзакциями, возвращает отредактированный файл в виде списка словарей
+    :param data_file: файл с транзакциями в формате csv
+    :return: отредактированный файл csv
+    """
+    path = f'{os.path.join(os.path.dirname(__file__), "..", "data", data_file)}'
+    try:
+        data_dict = pd.read_csv(path, sep=';').to_dict(orient='records')
+        for i in data_dict:
+            i["operationAmount"] = {
+                'amount': i['amount'],
+                'currency': {
+                    'name': i['currency_name'],
+                    'code': i['currency_code']
+                }
+            }
+            del i['amount'], i['currency_name'], i['currency_code']
+        logger.info(f'csv file {os.path.join(os.getcwd(), "data", data_file)}'
+                    f' converted to python format')
+        return data_dict
+    except pd.errors.ParserError:
+        logging.error("Invalid csv file.")
+        return []
+    except FileNotFoundError:
+        logger.warning(f"File {data_file} not found.")
+        return []
+
+
+def transactions_xlsx_to_dict(data_file: str) -> Any:
+    """
+    Функция принимает excel файл с транзакциями, возвращает отредактированный файл в виде списка словарей
+    :param data_file: файл с транзакциями в формате excel
+    :return: отредактированный файл excel
+    """
+    path = f'{os.path.join(os.path.dirname(__file__), "..", "data", data_file)}'
+    try:
+        data = pd.read_excel(path)
+        data_dict = data.to_dict(orient='records')
+        for i in data_dict:
+            i["operationAmount"] = {
+                'amount': i['amount'],
+                'currency': {
+                    'name': i['currency_name'],
+                    'code': i['currency_code']
+                }
+            }
+            del i['amount'], i['currency_name'], i['currency_code']
+        logger.info(f'xlsx file {os.path.join(os.getcwd(), "data", data_file)}'
+                    f' converted to python format')
+        return data_dict
+    except csv.Error:
+        logger.warning("Invalid csv file.")
+        return []
+    except FileNotFoundError:
+        logger.warning(f"File {data_file} not found.")
+        return []
+
+
 def transaction_amount_rub(transaction: dict[str, dict], currency_rate: float) -> Optional[float]:
     """
     Принимает на вход транзакцию, выводит сумму транзакции в рублях
@@ -61,12 +122,14 @@ def transaction_amount_rub(transaction: dict[str, dict], currency_rate: float) -
         if transaction["operationAmount"]['currency']['code'] == 'RUB':
             logger.info(f'transaction has been completed, currency - RUB, id - {transaction["id"]}')
             return float(transaction["operationAmount"]["amount"])
-        else:
+        elif transaction["operationAmount"]['currency']['code'] == 'USD':
             usd_rub_amount = float(transaction["operationAmount"]['amount'])
             result_rub = usd_rub_amount * currency_rate
             logger.info(f'transaction has been completed, currency - '
                         f'{(transaction["operationAmount"]["currency"]["code"])}, id - {transaction["id"]}')
             return float(result_rub)
+        else:
+            print("операция выполнена не в RUB/USD")
     except KeyError as e:
         logger.error(f"key {str(e)} not found in transaction.")
 
