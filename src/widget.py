@@ -1,15 +1,18 @@
 from src import masks
 
 
-def card_information_output(info: str) -> str:
+def card_information_output(info: str) -> str | None:
     """
     Функция определяет тип поступающей информации (счет или карта),
     возвращая маскированный формат
     :param info: счет/номер карты
     :return: маскированный счет входных данных (номер или счет карты)
     """
-    info_list = info.split()
-    info_type = info_list[0]
+    if not isinstance(info, str):
+        return None
+    else:
+        info_list = info.split()
+        info_type = info_list[0]
     if info_type == 'Счет':
         card_account = info
         card_account = card_account.split()[-1]
