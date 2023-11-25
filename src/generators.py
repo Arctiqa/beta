@@ -9,8 +9,10 @@ def filter_by_currency(transact: list[dict], currency: str) -> Generator:
     :return: значение из генератора списка словарей по выбранной валюте
     """
     for dct in transact:
-        if dct["operationAmount"]["currency"]["code"] == currency:
-            yield dct
+        operation_amount = dct.get("operationAmount")
+        if operation_amount and "currency" in operation_amount:
+            if operation_amount["currency"].get("code") == currency:
+                yield dct
 
 
 def transaction_descriptions(transact: list[dict]) -> Generator:
