@@ -1,6 +1,6 @@
 import re
 from collections import Counter
-import json
+from typing import Any
 
 
 def get_dicts_not_executed(dict_list: list[dict], state: str = 'EXECUTED') -> list[dict]:
@@ -28,7 +28,7 @@ def get_dicts_sorted_by_date(dict_list: list[dict], sort_type: bool = True) -> l
     return new_list
 
 
-def searching_description(dict_list, search_str=''):
+def searching_description(dict_list: list[dict], search_str: str = '') -> list[dict]:
     """
     Принимает список словарей с данными о банковских операциях и строку
     поиска и возвращает список словарей, у которых в описании есть данная строка
@@ -40,7 +40,7 @@ def searching_description(dict_list, search_str=''):
     return [dct for dct in dict_list if re.findall(search_str, str(dct.get('description', '')), flags=re.I)]
 
 
-def dict_counter_by_description(dict_list, descriptions_dct):
+def dict_counter_by_description(dict_list: list[dict[Any, Any]], descriptions_dct: dict[str, int]) -> dict[Any, Any]:
     """
     Принимает список словарей с данными о банковских операциях и словарь категорий операций и возвращать словарь,
     в котором ключи — это названия категорий, а значения — это количество операций в каждой категории
