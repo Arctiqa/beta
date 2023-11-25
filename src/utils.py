@@ -150,8 +150,7 @@ def transaction_amount_rub(transaction: dict[str, dict], currency: str) -> Optio
     try:
         if transaction["operationAmount"]['currency']['code'] == 'RUB':
             logger.info(f'transaction has been completed, currency - RUB, id - {transaction["id"]}')
-            return f"Transaction id - {transaction['id']}, " \
-                   f"RUB - {float(transaction['operationAmount']['amount'])}"
+            return f"{float(transaction['operationAmount']['amount'])} RUB"
         elif transaction["operationAmount"]['currency']['code'] == currency:
             value_rate = currency_from_api_rub_rate(currency, API_KEY)
             usd_rub_amount = float(transaction["operationAmount"]['amount'])
@@ -162,8 +161,9 @@ def transaction_amount_rub(transaction: dict[str, dict], currency: str) -> Optio
                 result_rub = usd_rub_amount * value_rate
                 logger.info(f'transaction has been completed, currency - '
                             f'{(transaction["operationAmount"]["currency"]["code"])}, id - {transaction["id"]}')
-                return f"Transaction id - {transaction['id']}, " \
-                       f"{transaction['operationAmount']['currency']['code']} to RUB - {float(result_rub)}"
+                return f"{transaction['operationAmount']['amount']} " \
+                       f"{transaction['operationAmount']['currency']['code']}\n" \
+                       f"Эквивалент в рублях - {float(result_rub)} RUB"
         else:
             return f"Операция совершена не в {currency}"
 
