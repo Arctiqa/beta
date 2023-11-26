@@ -2,12 +2,15 @@ import os
 import json
 from unittest.mock import patch
 import pytest
-from src.utils import transaction_amount_rub, transactions_json_to_dict, usd_to_rub_rate
+from src.utils import (transaction_amount_rub, transactions_json_to_dict, currency_from_api_rub_rate,
+                       transactions_csv_to_dict, transactions_xlsx_to_dict)
 from dotenv import load_dotenv
+from src.logger_ import setup_logging
+import logging
 
 load_dotenv()
 API_KEY = os.environ.get('API_KEY')
-print(os.getcwd())
+logger = setup_logging()
 
 
 @pytest.fixture
@@ -17,49 +20,48 @@ def test_dict():
         return json.load(f)
 
 
-def test_transactions_json_to_dict(test_dict):
+def test_transactions_json_to_dict(test_dict, caplog):
     json_file = 'operations.json'
     result = transactions_json_to_dict(json_file)
     assert result == test_dict
+    with caplog.at_level(logging.INFO):
+        transactions_json_to_dict(json_file)
+    assert f'json file {os.path.join(os.getcwd(), "data", json_file)} converted to python format' in caplog.text
 
 
-def test_transactions_json_to_dict_not_found(capsys):
+def test_transactions_json_to_dict_not_found(caplog):
     json_file = 'not_exist.json'
     result = transactions_json_to_dict(json_file)
-    log_message = capsys.readouterr()
 
-    assert result is None
-    assert f'File {json_file} not found.' == log_message.out.strip()
+    assert result == []
+    assert f"File {json_file} not found." in caplog.text
 
 
-def test_transactions_json_to_dict_invalid_json(capsys):
+def test_transactions_json_to_dict_invalid_json(caplog):
     json_file = 'invalid_json.json'
     result = transactions_json_to_dict(json_file)
-    log_message = capsys.readouterr()
 
-    assert result is None
-    assert "Invalid JSON data." == log_message.out.strip()
+    assert result == []
+    assert "Invalid JSON data." in caplog.text
 
 
-def test_usd_to_rub_rate():
-    with patch('requests.request') as mock_get:
-        mock_get.return_value.json.return_value = {'base': 'USD', 'rates': {'RUB': 90.0}}
-        assert usd_to_rub_rate('USD') == 90.0
-        mock_get.assert_called_once_with("GET",
-                                         "https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base=USD",
-                                         headers={"apikey": API_KEY})
-
+def test_currency_from_api_rub_rate_none(caplog):
     with patch('requests.request') as mock_get_none:
         mock_get_none.return_value.json.return_value = None
-        assert usd_to_rub_rate('USD') is None
+        assert currency_from_api_rub_rate('USD', API_KEY) is None
         mock_get_none.assert_called_once_with(
             "GET",
             "https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base=USD",
-            headers={"apikey": API_KEY}
-        )
+            headers={"apikey": API_KEY})
+        with caplog.at_level(logging.INFO):
+            currency_from_api_rub_rate('USD', API_KEY)
+            assert "Error during API request: 'NoneType' object is not subscriptable" in caplog.text
+
+    currency_from_api_rub_rate('USD', api_key=None)
+    assert 'Error during API request: API не определен' in caplog.text
 
 
-def test_transaction_amount_rub():
+def test_transaction_amount_rub(caplog):
     rub_transaction = {
         "id": 441945886,
         "state": "EXECUTED",
@@ -93,6 +95,92 @@ def test_transaction_amount_rub():
     }
     incorrect_transaction = {}
 
-    assert transaction_amount_rub(rub_transaction, 91.3) == 31957.58
-    assert round(transaction_amount_rub(usd_transaction, 100.0), 1) == 822137.0
-    assert transaction_amount_rub(incorrect_transaction, 92.4) is None
+    with patch('src.utils.currency_from_api_rub_rate') as mock_currency:
+        mock_currency.return_value = 100.0
+        with caplog.at_level(logging.INFO):
+            transaction_amount_rub(usd_transaction, 'USD')
+            assert 'transaction has been completed, currency - USD, id - 41428829' in caplog.text
+        result = transaction_amount_rub(usd_transaction, "USD")
+    assert result == '8221.37 USD\nЭквивалент в рублях - 822137.0000000001 RUB'
+
+    assert transaction_amount_rub(incorrect_transaction, 'USD') is None
+    assert transaction_amount_rub(rub_transaction, 'USD') == '31957.58 RUB'
+
+    with caplog.at_level(logging.INFO):
+        transaction_amount_rub(rub_transaction, 'USD')
+        transaction_amount_rub(incorrect_transaction, 'USD')
+
+        assert 'transaction has been completed, currency - RUB, id - 441945886' in caplog.text
+        assert "key 'operationAmount' not found in transaction." in caplog.text
+
+
+def test_transactions_xlsx_to_dict(caplog):
+    data_file = 'transactions_excel.xlsx'
+    result = transactions_xlsx_to_dict(data_file)
+    sample = {
+        'id': 650703.0,
+        'state': 'EXECUTED',
+        'date': '2023-09-05T11:30:32Z',
+        'from': 'Счет 58803664561298323391',
+        'to': 'Счет 39745660563456619397',
+        'description': 'Перевод организации',
+        'operationAmount': {
+            'amount': 16210.0,
+            'currency': {
+                'name': 'Sol',
+                'code': 'PEN'
+            }
+        }
+    }
+    assert result[0] == sample
+    with caplog.at_level(logging.INFO):
+        transactions_xlsx_to_dict(data_file)
+        assert f'xlsx file {os.path.join(os.getcwd(), "data", data_file)} converted to python format' in caplog.text
+
+    data_file = 'transaction_excel_empty.csv'
+    result = transactions_xlsx_to_dict(data_file)
+    assert result == []
+
+    data_file = 'transaction_excel_invalid.csv'
+    result = transactions_xlsx_to_dict(data_file)
+    assert result == []
+
+    data_file = 'not_exist.csv'
+    result = transactions_xlsx_to_dict(data_file)
+    assert result == []
+
+
+def test_transactions_csv_to_dict(caplog):
+    data_file = 'transactions.csv'
+    result = transactions_csv_to_dict(data_file)
+    sample = {
+        'id': 650703.0,
+        'state': 'EXECUTED',
+        'date': '2023-09-05T11:30:32Z',
+        'from': 'Счет 58803664561298323391',
+        'to': 'Счет 39745660563456619397',
+        'description': 'Перевод организации',
+        'operationAmount': {
+            'amount': 16210.0,
+            'currency': {
+                'name': 'Sol',
+                'code': 'PEN'
+            }
+        }
+    }
+    assert result[0] == sample
+    with caplog.at_level(logging.INFO):
+        transactions_csv_to_dict(data_file)
+        assert f'csv file {os.path.join(os.getcwd(), "data", data_file)} converted to python format' in caplog.text
+
+    data_file = 'transaction_empty.csv'
+    result = transactions_csv_to_dict(data_file)
+    assert result == []
+
+    data_file = 'transaction_invalid.csv'
+    result = transactions_csv_to_dict(data_file)
+    assert result == []
+
+    data_file = 'not_exsist.csv'
+    result = transactions_csv_to_dict(data_file)
+    assert result == []
