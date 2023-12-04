@@ -133,7 +133,7 @@ def transactions_xlsx_to_dict(data_file: str) -> Any:
                     f' converted to python format')
         return data_dict
     except pd.errors.EmptyDataError:
-        logger.warning("Invalid csv file.")
+        logger.warning("Invalid xlsx file.")
         return []
     except FileNotFoundError:
         logger.warning(f"File {data_file} not found.")
